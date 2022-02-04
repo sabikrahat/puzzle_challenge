@@ -39,7 +39,7 @@ class HomePage extends StatelessWidget {
                   children: [
                     const Text('Puzzle Challenge',
                         style: TextStyle(
-                            fontSize: 28.0,
+                            fontSize: 26.0,
                             wordSpacing: 3.0,
                             fontWeight: FontWeight.w800)),
                     const SizedBox(height: 10.0),
@@ -57,7 +57,7 @@ class HomePage extends StatelessWidget {
                                   color: Color(0xff0468d7),
                                   fontWeight: FontWeight.w600)),
                           TextSpan(
-                              text: _pd.tiles.toString(),
+                              text: _pd.getTiles.toString(),
                               style: const TextStyle(
                                   fontSize: 20.0,
                                   color: Color(0xff0468d7),
@@ -69,49 +69,35 @@ class HomePage extends StatelessWidget {
                                   color: Color(0xff0468d7),
                                   fontWeight: FontWeight.w600)),
                         ])),
-                    Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(50.0, 50.0, 50.0, 50.0),
-                        child: GridView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    crossAxisSpacing: 7.0,
-                                    mainAxisSpacing: 7.0),
-                            itemCount: 15,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                  decoration: BoxDecoration(
-                                      color: const Color(0xff0468d7),
-                                      borderRadius:
-                                          BorderRadius.circular(10.0)),
-                                  child: Center(
-                                      child: Text((index + 1).toString(),
-                                          style: const TextStyle(
-                                              fontSize: 30.0,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold))));
-                            })),
+                    if (_pd.winState != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: Text(_pd.winState!,
+                            style: TextStyle(
+                                fontSize: 22.0,
+                                color: Colors.greenAccent[400],
+                                fontWeight: FontWeight.w600)),
+                      ),
+                    const Padding(
+                        padding: EdgeInsets.fromLTRB(40.0, 40.0, 40.0, 40.0),
+                        child: GameScreen()),
                     ElevatedButton.icon(
-                        onPressed: () => debugPrint("it's pressed"),
+                        onPressed: () => _pd.suffle(),
                         icon: Padding(
                             padding:
-                                const EdgeInsets.fromLTRB(20.0, 11.0, 0.0, 8.0),
+                                const EdgeInsets.fromLTRB(15.0, 11.0, 0.0, 8.0),
                             child: Transform(
                                 alignment: Alignment.center,
                                 transform: Matrix4.rotationY(math.pi),
                                 child: Transform.rotate(
                                     angle: 320 * math.pi / 180,
                                     child:
-                                        const Icon(Icons.replay, size: 22.0)))),
+                                        const Icon(Icons.replay, size: 20.0)))),
                         label: const Padding(
-                            padding: EdgeInsets.fromLTRB(4.0, 8.0, 20.0, 8.0),
+                            padding: EdgeInsets.fromLTRB(4.0, 8.0, 15.0, 8.0),
                             child: Text("Shuffle",
-                                style: TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.w600))),
+                                textScaleFactor: 1.15,
+                                style: TextStyle(fontWeight: FontWeight.w600))),
                         style: ElevatedButton.styleFrom(
                             primary: const Color(0xff0468d7),
                             shape: RoundedRectangleBorder(
@@ -120,8 +106,46 @@ class HomePage extends StatelessWidget {
           Positioned(
               bottom: 0.0,
               right: 0.0,
-              child: Image.asset('assets/images/sample.png',
-                  height: 160.0, width: 160.0)),
+              child: Image.asset(
+                'assets/images/sample.png',
+                height: size.width * 0.2 > 150 ? 150 : size.width * 0.2,
+                width: size.width * 0.2 > 150 ? 150 : size.width * 0.2,
+              )),
         ])));
+  }
+}
+
+class GameScreen extends StatelessWidget {
+  const GameScreen({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var _pd = Provider.of<ConfigPd>(context);
+    return GridView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4, crossAxisSpacing: 7.0, mainAxisSpacing: 7.0),
+        itemCount: _pd.tilesList.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+              onTap: () => _pd.moveTile(index),
+              child: Container(
+                  decoration: BoxDecoration(
+                      color: _pd.tilesList[index] == 'X'
+                          ? Colors.white
+                          : const Color(0xff0468d7),
+                      borderRadius: BorderRadius.circular(10.0)),
+                  child: Center(
+                      child: Hero(
+                          tag: 'Puzzle-Text',
+                          child: Text(_pd.tilesList[index],
+                              textScaleFactor: 1.5,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold))))));
+        });
   }
 }
