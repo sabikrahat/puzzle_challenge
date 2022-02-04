@@ -115,10 +115,36 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class GameScreen extends StatelessWidget {
+class GameScreen extends StatefulWidget {
   const GameScreen({
     Key? key,
   }) : super(key: key);
+
+  @override
+  State<GameScreen> createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
+  String? move;
+  List<Tween> switchTween = [];
+  List<Animation> switchAnim = [];
+  List<AnimationController> switchAnimCont = [];
+  double? width;
+
+  @override
+  void initState() {
+    // Add a tween and a controller for each element
+    for (int i = 0; i < 16; i++) {
+      switchAnimCont.add(AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 100),
+      ));
+      switchTween
+          .add(Tween<Offset>(begin: Offset.zero, end: const Offset(0, 1)));
+      switchAnim.add(switchTween[i].animate(switchAnimCont[i]));
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,11 +157,42 @@ class GameScreen extends StatelessWidget {
         itemCount: _pd.tilesList.length,
         itemBuilder: (context, index) {
           return GestureDetector(
-              onTap: () => _pd.moveTile(index),
+              onTap: () {
+                if (_pd.tilesList[index] != 'X' && _pd.isGameRunning) {
+                  int idx = _pd.tilesList.indexOf('X');
+                  int temp = (idx - index);
+                  if (temp == -1) {
+                    // moving left
+                    switchTween[index].end = const Offset(-1, 0);
+                    switchAnimCont[index].forward();
+                    switchTween[index - 1].end = const Offset(1, 0);
+                    switchAnimCont[index - 1].forward();
+                  } else if (temp == 1) {
+                    // moving right
+                    switchTween[index].end = const Offset(1, 0);
+                    switchAnimCont[index].forward();
+                    switchTween[index + 1].end = const Offset(-1, 0);
+                    switchAnimCont[index + 1].forward();
+                  } else if (temp == -4) {
+                    // moving up
+                    switchTween[index].end = const Offset(0, -1);
+                    switchAnimCont[index].forward();
+                    switchTween[index - 4].end = const Offset(0, 1);
+                    switchAnimCont[index - 4].forward();
+                  } else if (temp == 4) {
+                    // moving down
+                    switchTween[index].end = const Offset(0, 1);
+                    switchAnimCont[index].forward();
+                    switchTween[index + 4].end = const Offset(0, -1);
+                    switchAnimCont[index + 4].forward();
+                  }
+                  _pd.moveTile(index);
+                }
+              },
               child: Container(
                   decoration: BoxDecoration(
                       color: _pd.tilesList[index] == 'X'
-                          ? Colors.white
+                          ? Colors.blue[50]
                           : const Color(0xff0468d7),
                       borderRadius: BorderRadius.circular(10.0)),
                   child: Center(
@@ -143,8 +200,10 @@ class GameScreen extends StatelessWidget {
                           tag: 'Puzzle-Text',
                           child: Text(_pd.tilesList[index],
                               textScaleFactor: 1.5,
-                              style: const TextStyle(
-                                  color: Colors.white,
+                              style: TextStyle(
+                                  color: _pd.tilesList[index] == 'X'
+                                      ? Colors.blue[50]
+                                      : Colors.white,
                                   fontWeight: FontWeight.bold))))));
         });
   }
