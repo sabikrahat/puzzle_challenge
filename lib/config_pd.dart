@@ -10,7 +10,7 @@ class ConfigPd extends ChangeNotifier {
   ConfigPd() {
     moves = 0;
     tiles = 15;
-    winState = null;
+    winState = 'Please shuffle the board';
     isGameRunning;
     tilesList = List.generate(15, (index) => (index + 1).toString());
     tilesList.add('X');
@@ -49,6 +49,7 @@ class ConfigPd extends ChangeNotifier {
       if (temp == 1 || temp == 4) {
         tilesList[idx] = val;
         tilesList[index] = 'X';
+
         ///
         setMoves(getMoves + 1);
         ///
