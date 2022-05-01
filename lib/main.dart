@@ -13,12 +13,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-      title: 'Flutter Puzzle Challeng',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ConfigPd())],
-          child: const HomePage()));
+        title: 'Flutter Puzzle Challeng',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: MultiProvider(
+          providers: [
+            ChangeNotifierProvider(
+              create: (_) => ConfigPd(),
+            ),
+          ],
+          child: const HomePage(),
+        ),
+      );
 }
 
 class HomePage extends StatelessWidget {
